@@ -37,6 +37,7 @@ describe "Static pages" do
       page.should have_selector('h1', :text => 'About Us')
     end
 
+
     it "should have the title 'About Us'" do
       visit '/static_pages/about'
       page.should have_selector('title', :text => "#{base_title} | About Us")
