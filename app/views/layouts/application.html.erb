@@ -16,6 +16,9 @@
       <%= yield %>
       <%= render 'layouts/footer' %>
       <%= debug(params) if Rails.env.development? %>
+      <%= debug({  "method" => request.method_symbol.to_s,
+                              "original_fullpath" => request.original_fullpath,
+                            }) if Rails.env.development? %>
     </div>
   </body>
 </html>

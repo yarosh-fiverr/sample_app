@@ -46,15 +46,41 @@ describe "User pages" do
           expect { click_link('delete') }.to change(User, :count).by(-1)
         end
         it { should_not have_link('delete', href: user_path(admin)) }
+
+        it  "admin shouldn't be able to delete himself" do
+          expect { delete user_path(admin) }.not_to change(User, :count).by(-1)
+        end
+
       end
     end
   end
 
   describe "signup page" do
-    before { visit signup_path }
+    describe "should be able to sign up when not signed in as user" do
+      before { visit signup_path }
 
-    it { should have_selector('h1',    text: 'Sign up') }
-    it { should have_selector('title', text: full_title('Sign up')) }
+      it { should have_selector('h1',    text: 'Sign up') }
+      it { should have_selector('title', text: full_title('Sign up')) }
+    end
+
+    describe "should be redirected to root url when attemping to sign up when signed in" do
+      let(:user) { FactoryGirl.create(:user) }
+      before { sign_in user }
+
+      describe "should redirect from signup to root" do
+        before { visit signup_path }
+        it { should_not have_selector('title', text: full_title('Sign up')) }
+      end
+
+      describe "submitting to the user create action while signed in" do
+        before { post users_path }
+        specify { response.should redirect_to(root_path) }
+      end
+      # describe "when trying to access /new" do
+      #   visit signup_path
+      #   it { should have_selector('title', text: full_title('')) }
+      # end
+    end
   end
 
   describe "profile page" do

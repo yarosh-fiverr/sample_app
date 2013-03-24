@@ -4,10 +4,18 @@ class UsersController < ApplicationController
   before_filter :admin_user,     only: :destroy
 
   def new
+    if signed_in?
+      redirect_to root_path
+      return
+    end
     @user = User.new
   end
 
   def create
+    if signed_in?
+      redirect_to root_path
+      return
+    end
     @user = User.new(params[:user])
     if @user.save
       sign_in @user
@@ -40,8 +48,12 @@ class UsersController < ApplicationController
   end
 
   def destroy
-    User.find(params[:id]).destroy
-    flash[:success] = "User destroyed."
+    user = User.find(params[:id])
+    unless current_user?(user)
+      user.destroy
+      flash[:success] = "User destroyed."
+
+    end
     redirect_to users_url
   end
 
