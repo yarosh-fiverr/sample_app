@@ -26,11 +26,41 @@ describe "Static pages" do
         visit root_path
       end
 
+      describe "should have correct microposts count" do
+        describe "with 2 microposts" do
+          it { should have_selector('span', text: "2 microposts") }
+        end
+
+        describe "with 1 micropost" do
+          before do
+            user.microposts.first.destroy
+            visit root_path
+          end
+          it { should have_selector('span', text: "1 micropost") }
+        end
+
+      end
+
       it "should render the user's feed" do
         user.feed.each do |item|
           page.should have_selector("li##{item.id}", text: item.content)
         end
       end
+
+      describe "pagination" do
+
+      before(:all) { 30.times { FactoryGirl.create(:micropost, user: user, content: "just for pagination") } }
+      after(:all)  { user.microposts.where('content = "just for pagination"').destroy }
+
+      it { should have_selector('div.pagination') }
+
+      it "should list each micropost" do
+        user.microposts.paginate(page: 1).each do |micropost|
+          page.should have_selector('li', text: micropost.content)
+        end
+      end
+    end
+
     end
   end
 
